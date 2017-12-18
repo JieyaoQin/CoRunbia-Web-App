@@ -1,0 +1,104 @@
+#map {
+    height: 750px;
+    width: 75%;
+    top: 50px;
+}
+.list-group {
+    height: 170px;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+.message-list {
+    height: 120px;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+.user-list {
+    height: 250px;
+    top: 50px;
+    background-color: white;
+    background-color: rgba(255,255,255,0.5); 
+}
+.message-box {
+    height: 250px;
+    top: 50px;
+    background-color: white;
+    background-color: rgba(255,255,255,0.5); 
+}
+.notif-list {
+    top: 50px;
+    height: 250px;
+    background-color: white;
+    background-color: rgba(255,255,255,0.5); 
+}
+.history-list {
+    top: 50px;
+    height: 250px;
+    background-color: white;
+    background-color: rgba(255,255,255,0.5); 
+}
+.message-sender textarea {
+    height: 40px;
+}
+html,
+body {
+    font-family: arial;
+    background-image: url("bg.jpg");
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+.message-container {
+    padding: 20px;
+}
+
+
+
+#main{
+    background-color: white;
+    background-color: rgba(255,255,255,0.5); 
+}
+
+#right-panel select,
+#right-panel input {
+    font-size: 15px;
+}
+#right-panel select {
+    width: 100%;
+}
+#right-panel i {
+    font-size: 12px;
+} 
+#right-panel2 select,
+#right-panel2 input {
+    font-size: 15px;
+}
+#right-panel2 select {
+    width: 100%;
+}
+#right-panel2 i {
+    font-size: 12px;
+} 
+#right {
+    margin: 20px;
+    border-width: 2px;
+    width: 20%;
+    height: 400px;
+    float: right;
+    text-align: left;
+    padding-top: 50px;
+}
+#directions-panel {
+    margin-top: 10px;
+    background-color: #FFEE77;
+    padding: 10px;
+    overflow: scroll;
+    height: 174px;
+}
+#directions-panel2 {
+    margin-top: 10px;
+    background-color: #FFEE77;
+    padding: 10px;
+    overflow: scroll;
+    height: 174px;
+}

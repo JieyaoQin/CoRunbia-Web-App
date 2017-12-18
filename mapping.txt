@@ -1,0 +1,15 @@
+curl -XPUT 'search-test-klibcn4gpc6pjsc2mq3lcpf7xu.us-east-1.es.amazonaws.com/chathistory?pretty' -H 'Content-Type: application/json'-d'
+{
+  "mappings": 
+  {
+    "messages": 
+    { 
+      "properties": { 
+        "name": { "type": "text" }, 
+        "with": { "type": "text" }, 
+        "fromto": { "type": "text" },  
+        "message": {"type": "text"}
+      }
+    }
+  }
+}

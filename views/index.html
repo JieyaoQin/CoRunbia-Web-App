@@ -1,0 +1,344 @@
+<html ng-app="app"  ng-controller="app">
+	<head>
+      <title>User Dashboard</title>
+      <meta name="viewport" content="initial-scale=1.0, user-scalable=yes">
+      <link rel="stylesheet" href="css/bootstrap.min.css">
+      <link rel="stylesheet" href="css/style.css">
+      <script src="js/angular.min.js"></script>
+   </head>
+   <body>
+      <div class="container">
+         <div class="row">
+            <div class="col-md-4 user-list">
+               <h2>Active Users</h2>
+               <ul class="list-group">
+                  <li class="list-group-item" 
+                     ng-repeat="user in userList"
+                     ng-class="{ 'active' : user.id == selectedUser.id}"
+                     ng-click = seletedUser(user);
+                     ng-style="{
+                     'cursor': user.id === socketId ? 'not-allowed' :'pointer'
+                     }"
+                     >
+                     <span id='{{user.id}}' >{{ user.id === socketId ? 'You': user.userName }}</span>
+                  </li>
+               </ul>
+            </div>
+            <div class="col-md-8 message-box">
+				        <div>
+                  <div style="float:left"><h2>Instant Messages</h2></div>
+                  <div style="float:right"><input type="submit" id="signup" value="sign up" ng-click = signup()></div>
+                  <div style="float:right"><input type="submit" id="connect" value="log in" ng-click = connect()></div>
+                </div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <ul class="message-list">
+                  <div class="message-sender">
+                    <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)" ng-keypress="recMsg($event)"></textarea>
+                  </div>
+                  <li class="list-group-item" 
+                     ng-repeat="message in oldmessages"
+                     >
+                     {{ message.name }} @ {{ message.toname }}: {{ message.message }}
+                  </li>
+                  <li class="list-group-item" 
+                     ng-repeat="message in messages"
+                     >
+                     {{ message.name }} @ you: {{ message.msg }}
+                  </li>
+                  <li class="list-group-item" 
+                     ng-repeat="message in ownmessages"
+                     >
+                     you @ {{ message.toname }}: {{ message.msg }}
+                  </li>
+                </ul>
+            </div>
+            <div class="col-md-4 notif-list">
+               <h2>Meet U There</h2>
+               <ul class="list-group">
+                  <li class="list-group-item" 
+                     ng-repeat="meet in meetList"
+                     >
+                     <span id='{{meet}}' >{{ meet }} has recently planned the same path as your choice, you can go together!</span>
+                  </li>
+               </ul>
+            </div>
+           <div class="col-md-8 history-list">
+               <h2>User History</h2>
+               <ul class="list-group">
+                  <li class="list-group-item" 
+                     ng-repeat="history in routeHistoryList track by $index"
+                     >
+                     <span id='{{history[1]}}' >{{ history }}</span>
+                  </li>
+               </ul>
+            </div>
+
+            <div id="main" style="width:100%;height:1350px" class="container">
+              <div id="map" style="float:left;width:70.5%"></div>
+              <div id="right" style="float:left;width:25%">
+                <div id="right-panel">
+                  <div>
+                    <b>Start:</b>
+                    <div id="start_address">
+                      <input id="start" type="textbox">
+                    </div>
+                    <b>End:</b>
+                    <div id="end_address">
+                      <input id="end" type="textbox">
+                    </div>
+                    <br>
+                    <input type="submit" id="submit" value="Generate">
+                    <input type="submit" id="confirm" value="Confirm" ng-click = uploadRoute() ng-click = showHistory()>
+                  </div>
+                </div>
+                  
+                <div id="directions-panel"></div>
+                <br>
+                <br>
+                <div id="right-panel2">
+                  <div>
+                    <b>Start:</b>
+                    <div id="start_address2">
+                      <input id="begin" type="textbox">
+                    </div>
+                    <b>End:</b>
+                    <div id="end_address2">
+                      <input id="finish" type="textbox">
+                    </div>
+                    <br>
+                    <input type="submit" id="submit2" value="Apply">
+                    <input type="submit" id="search" value="Search" ng-click = searchRoute()>
+                    <input type="submit" id="select" value="Select" ng-click = searchHistory() ng-click=uploadHistory()>
+                  </div>
+                  	<ul class="list-group">
+                  		<li class="list-group-item" 
+                        ng-repeat="path in resultList"
+                        ng-click = selectRoute(path);
+                        ng-class="{ 'active' : path._source.id == selectedPath._source.id }"
+                    		>
+                     		<span id='{{path._source.id}}'>{{path._source.start_address}} to {{path._source.end_address}}</span>
+                  		</li>
+               		</ul>
+                </div>
+              </div>
+            </div>
+            <script>
+            	var Route; 
+            	var start2;
+        		  var dest2;
+              var spath; 
+            	function initMap() {
+            		var directionsService = new google.maps.DirectionsService;
+            		var directionsDisplay = new google.maps.DirectionsRenderer;
+            		var geocoder = new google.maps.Geocoder();
+            		var map = new google.maps.Map(document.getElementById('map'), {
+            			zoom: 15,
+            			center: {lat: 40.80774, lng: -73.96231}
+            		});
+
+            		directionsDisplay.setMap(map);
+            		var geocoder = new google.maps.Geocoder();
+            		var coordinates = [];
+            		var markers = [];
+
+            		map.addListener('click', function(e) {
+            			coordinates.push(e.latLng);
+            			var length = (coordinates.length)-1;
+            			geocoder.geocode({'location': coordinates[length]},
+            			function(results, status) {
+            				if (status === 'OK') {
+            					var startend=results[0].formatted_address;
+            					var marker = new google.maps.Marker({
+            						map: map,
+            						position: e.latLng
+            					});
+            					markers.push(marker);
+
+            					function setMapOnAll(map) {
+            						for (var i = 0; i < markers.length-2; i++) {
+            							markers[i].setMap(map);
+            						}
+            					}
+            					function clearMarkers() {
+            						setMapOnAll(null);
+            					}
+            					if (markers.length > 2){
+            						clearMarkers();
+            					}
+
+            					var infowindow = new google.maps.InfoWindow({
+            						content: startend
+            					}).open(map, marker);
+            				} else {
+            					alert('Geocode was not successful for the following reason: ' + status);
+            				}
+            			});
+            		});
+
+            		document.getElementById('submit2').addEventListener('click', function() {
+                	start2 = document.getElementById('begin').value; 
+            			dest2 = document.getElementById('finish').value; 
+            		});
+
+                document.getElementById('select').addEventListener('click', function() {
+                  if(spath == undefined) {
+                    alert('Please select a path.'); 
+                  }
+                  else{
+                    var startl = {'lat': spath._source.start_location.lat, 'lng': spath._source.start_location.lon}; 
+                    var endl = {'lat': spath._source.end_location.lat, 'lng': spath._source.end_location.lon}; 
+                    renderRoute(directionsService, directionsDisplay, startl, endl); 
+                  }
+                });
+
+            		document.getElementById('submit').addEventListener('click', function() {
+            			if (document.getElementById('start').value.length == 0){
+            				calculate(directionsService, directionsDisplay, coordinates);
+            			}else if (document.getElementById('end').value.length == 0){
+            				calculate(directionsService, directionsDisplay, coordinates);
+            			}else {
+            				calculateAndDisplayRoute(directionsService, directionsDisplay, geocoder);
+            				document.getElementById('start').value = null;
+            				document.getElementById('end').value = null;
+            			}
+            		});
+
+            		document.getElementById('confirm').addEventListener('click', function() {
+            			window.alert('Route confirmed!');
+            		});
+            	}
+
+            	function reqListener () {
+            	}
+
+              function renderRoute(directionsService, directionsDisplay, startl, endl) {
+                var waypts = [];
+                directionsService.route({
+                  origin: startl,
+                  destination: endl,
+                  waypoints: waypts,
+                  optimizeWaypoints: true,
+                  travelMode: 'WALKING'
+                }, function(response, status) {
+                  if (status === 'OK') {
+                    directionsDisplay.setDirections(response);
+                    var route = response.routes[0];
+                    var summaryPanel = document.getElementById('directions-panel');
+                    summaryPanel.innerHTML = '';
+                    // For each route, display summary information.
+                    for (var i = 0; i < route.legs.length; i++) {
+                      var routeSegment = i + 1;
+                      summaryPanel.innerHTML += 'From: ' + route.legs[i].start_address + '<br>';
+                      summaryPanel.innerHTML += 'To: ' + route.legs[i].end_address + '<br>';
+                      summaryPanel.innerHTML += 'Distance: ' + route.legs[i].distance.text + '<br>';
+                      summaryPanel.innerHTML += 'Duration: ' + Number(parseInt(route.legs[i].duration.text)*0.4).toPrecision(2) + ' min' + '<br>';
+                      var route1 = route.legs[i];
+                      Route = route1; 
+                    }
+                  } else {
+                    window.alert('Directions request failed due to ' + status);
+                  }
+                });
+              }
+
+            	function calculate(directionsService, directionsDisplay, coordinates) {
+            		var length = coordinates.length-1;
+            		var calculate1 = coordinates[length-1];
+            		var calculate2 = coordinates[length];
+
+            		var waypts = [];
+            		directionsService.route({
+            			//origin: document.getElementById('start').value,
+            			//destination: document.getElementById('end').value,
+            			origin: calculate1,
+            			destination: calculate2,
+            			waypoints: waypts,
+            			optimizeWaypoints: true,
+            			travelMode: 'WALKING'
+            		}, function(response, status) {
+            			if (status === 'OK') {
+            				directionsDisplay.setDirections(response);
+            				var route = response.routes[0];
+            				var summaryPanel = document.getElementById('directions-panel');
+            				summaryPanel.innerHTML = '';
+            				// For each route, display summary information.
+            				for (var i = 0; i < route.legs.length; i++) {
+            					var routeSegment = i + 1;
+            					summaryPanel.innerHTML += 'From: ' + route.legs[i].start_address + '<br>';
+            					summaryPanel.innerHTML += 'To: ' + route.legs[i].end_address + '<br>';
+            					summaryPanel.innerHTML += 'Distance: ' + route.legs[i].distance.text + '<br>';
+            					summaryPanel.innerHTML += 'Duration: ' + Number(parseInt(route.legs[i].duration.text)*0.4).toPrecision(2) + ' min' + '<br>';
+            					var route1 = route.legs[i];
+            					Route = route1; 
+            				}
+            			} else {
+            				window.alert('Directions request failed due to ' + status);
+            			}
+            		});
+            	}
+
+            	function calculateAndDisplayRoute(directionsService, directionsDisplay, geocoder) {
+            		var waypts = [];
+            		var start = document.getElementById('start').value;
+            		var end = document.getElementById('end').value;
+            		geocoder.geocode({'address': start,
+            			componentRestrictions: {
+            				country:'US'
+            			}
+            		}, function(results, status) {
+            			if (status === 'OK') {
+            				var origin1 = results[0].geometry.location;
+            				geocoder.geocode({'address': end,
+            					componentRestrictions: {
+            						country:'US'
+            					}
+            				}, function(results, status) {
+            					if (status === 'OK') {
+            						var destination1 = results[0].geometry.location;
+            						directionsService.route({
+            							origin: origin1,
+            							destination: destination1,
+            							waypoints: waypts,
+            							optimizeWaypoints: true,
+            							travelMode: 'WALKING'
+            						}, function(response, status) {
+            							if (status === 'OK') {
+            								directionsDisplay.setDirections(response);
+            								var route = response.routes[0];
+            								var summaryPanel = document.getElementById('directions-panel');
+            								summaryPanel.innerHTML = '';
+            								for (var i = 0; i < route.legs.length; i++) {
+            									var routeSegment = i + 1;
+            									summaryPanel.innerHTML += 'From: ' + route.legs[i].start_address + '<br>';
+            									summaryPanel.innerHTML += 'To: ' + route.legs[i].end_address + '<br>';
+            									summaryPanel.innerHTML += 'Distance: ' + route.legs[i].distance.text + '<br>';
+            									summaryPanel.innerHTML += 'Duration: ' + Number(parseInt(route.legs[i].duration.text)*0.4).toPrecision(2) +' min'+ '<br>';
+            									var route1 = route.legs[i];
+            									Route = route1; 
+            								}
+            							} else {
+            								window.alert('Directions request failed due to ' + status);
+            							}
+            						});
+            					} else {
+            						alert('Geocode was not successful for the following reason: ' + status);
+            					}
+            				});
+            			} else {
+            				alert('Geocode was not successful for the following reason: ' + status);
+            			}
+            		});
+            	}
+            </script>
+            <script async defer
+               src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAIjIoGNjLySkXo_ZxdsYpUItWUyZPZ8s&callback=initMap"></script>
+            <script src="/socket.io/socket.io.js"></script>
+            <script src="js/angular.min.js"></script>
+            <script src="js/script.js"></script>
+         </div>
+      </div>
+   </body>
+</html>
