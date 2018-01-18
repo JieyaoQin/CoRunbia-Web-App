@@ -1,4 +1,4 @@
-# CoRunbia-Web-
+# CoRunbia-Web-App
 This app is designed for jogging fans around Columbia University Campus to enhance their jogging experience and make friends.<br>
 <br>
 Usage: Please use `npm start` within the root folder to run the app. You'll be provided the link.<br>
