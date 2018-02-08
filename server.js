@@ -9,8 +9,8 @@ const bodyParser = require('body-parser');
 var crypto = require('crypto');
 var Elasticsearch = require('aws-es');
 var elasticsearch = new Elasticsearch({
-	accessKeyId: 'AKIAIX4KTXHWHH5FKLSQ',
-	secretAccessKey: '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',
+	accessKeyId: '*******************',
+	secretAccessKey: '********************',
 	service: 'es',
 	region: 'us-east-1',
 	host: 'search-test-klibcn4gpc6pjsc2mq3lcpf7xu.us-east-1.es.amazonaws.com'
