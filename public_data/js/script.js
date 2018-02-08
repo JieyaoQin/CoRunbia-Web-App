@@ -38,8 +38,7 @@ app.controller('app', ($scope, $http, socket) => {
 	$scope.userList = [];
 	$scope.resultList = []; 
 	$scope.meetList = [];
-	$scope.routeHistoryList = [];
-	const userlists = ["jq2261", "pz2232", "cy2468", "yw3008"]; 
+	$scope.routeHistoryList = []; 
 	$scope.connect = () => {
 		$scope.userName = window.prompt('Enter Your Name'); 
 		$scope.password = window.prompt('Enter Your Password');
