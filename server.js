@@ -16,7 +16,7 @@ var elasticsearch = new Elasticsearch({
 	host: 'search-test-klibcn4gpc6pjsc2mq3lcpf7xu.us-east-1.es.amazonaws.com'
 });
 AWS.config.update({
-    credentials: new AWS.Credentials('AKIAIX4KTXHWHH5FKLSQ', 'Q1/HEif+gTqozEaBjbmVfoDeEMuVmkDOt1SREisJ'),
+    credentials: new AWS.Credentials('AKIAIX4KTXHWHH5FKLSQ', 'Q1/HEi*************'),
     region: 'us-east-1'
 });
 let options = {
